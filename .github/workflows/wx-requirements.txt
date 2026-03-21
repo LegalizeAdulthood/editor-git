@@ -28,5 +28,9 @@ libxrandr-dev
 nasm
 ninja-build
 pkg-config
+# vcpkg autotools requirements
+autoconf
+autoconf-archive
+automake
 # openssh
 linux-libc-dev
