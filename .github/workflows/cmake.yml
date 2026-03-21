@@ -29,6 +29,7 @@ jobs:
         ${{github.workspace}}/vcpkg/bootstrap-vcpkg.sh
         echo "man-db man-db/auto-update boolean false" | sudo debconf-set-selections
         sudo dpkg-reconfigure man-db
+        sed '/#/d' ${{github.workspace}}/.github/workflows/wx-requirements.txt | sudo apt install
 
     - name: Install Prerequisites macOS
       if: ${{matrix.os == 'macos-latest'}}
