@@ -1,4 +1,4 @@
-#include <editor-version/editor-version.h>
+#include <editor-version/Repository.h>
 
 #include <wx/wx.h>
 
