@@ -1,5 +1,8 @@
 #pragma once
 
-namespace editor_git
+namespace version
 {
+
+void init();
+
 }
