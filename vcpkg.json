@@ -1,7 +1,7 @@
 {
   "$schema": "https://github.com/microsoft/vcpkg-tool/blob/3bc494764599acf9e431accdae1ac00a4dd0faa1/docs/vcpkg.schema.json",
   "name": "editor-git",
-  "description": "Sample code for the Utah C++ Programmers video",
+  "description": "Sample code for the Utah C++ Programmers video 'Managing Versions Programmatically with LibGit2'",
   "version-semver": "1.0.0",
   "dependencies": [
     "gtest",

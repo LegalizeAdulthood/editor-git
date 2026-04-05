@@ -1,8 +1,8 @@
 [![CMake workflow](https://github.com/LegalizeAdulthood/editor-git/actions/workflows/cmake.yml/badge.svg)](https://github.com/LegalizeAdulthood/editor-git/actions/workflows/cmake.yml)
 
-# Editing with Git
+# Managing Versions Programmatically with LibGit2
 
-Sample code for the video Editing with Git.
+Sample code for the video Managing Versions Programmatically with LibGit2.
 
 # Obtaining the Source
 
