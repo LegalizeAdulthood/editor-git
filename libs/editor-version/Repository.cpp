@@ -51,10 +51,44 @@ public:
         return git_repository_is_empty(m_repository) == 1;
     }
 
+    Iterator begin() override
+    {
+        return {};
+    }
+    Iterator end() override
+    {
+        return {};
+    }
+
 private:
     Git m_git;
     git_repository *m_repository;
 };
+
+Repository::Iterator::Iterator() :
+    Iterator{nullptr}
+{
+}
+
+Repository::Iterator::Iterator(Repository *repository) :
+    m_repository(repository)
+{
+}
+
+Commit Repository::Iterator::operator*() const noexcept
+{
+    return {};
+}
+
+Repository::Iterator &Repository::Iterator::operator+=(std::ptrdiff_t count) noexcept
+{
+    return *this;
+}
+
+Repository::Iterator::difference_type Repository::Iterator::operator-(const Iterator &other) const
+{
+    return 0;
+}
 
 std::shared_ptr<Repository> open_repository(const std::filesystem::path &path)
 {
