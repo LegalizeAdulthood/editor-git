@@ -4,6 +4,7 @@ namespace version::test
 {
 
 constexpr const char *EXISTING_REPOSITORY{"@TEST_EXISTING_REPOSITORY@"};
-constexpr const char *NONEXISTING_REPOSITORY{"@TEST_NONEXISTING_REPOSITORY@"};
+constexpr const char *NON_EXISTING_REPOSITORY{"@TEST_NON_EXISTING_REPOSITORY@"};
+constexpr const char *EXISTING_EMPTY_REPOSITORY{"@TEST_EXISTING_EMPTY_REPOSITORY@"};
 
 }
