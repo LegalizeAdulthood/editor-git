@@ -11,7 +11,7 @@ namespace version
 
 struct Commit
 {
-    std::string hash;
+    std::string message;
 };
 
 class Repository
