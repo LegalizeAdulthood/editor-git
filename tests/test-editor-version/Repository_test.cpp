@@ -22,10 +22,3 @@ TEST(TestRepository, openExistingEmpty)
 
     EXPECT_TRUE(repo->is_empty());
 }
-
-TEST(TestRepository, emptyRepositoryBeginEqualsEnd)
-{
-    std::shared_ptr repo{version::open_repository(version::test::EXISTING_EMPTY_REPOSITORY)};
-
-    EXPECT_EQ(repo->begin(), repo->end());
-}

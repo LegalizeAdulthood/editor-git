@@ -20,10 +20,7 @@ public:
     Repository &operator=(const Repository &rhs) = delete;
     Repository &operator=(Repository &&rhs) = delete;
 
-    bool is_empty() const
-    {
-        return git_repository_is_empty(m_repository) == 1;
-    }
+    bool is_empty() const;
 
 private:
     Git m_git;

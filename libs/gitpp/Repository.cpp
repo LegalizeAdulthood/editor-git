@@ -15,4 +15,9 @@ Repository::~Repository()
     git_repository_free(m_repository);
 }
 
+bool Repository::is_empty() const
+{
+    return git_repository_is_empty(m_repository) == 1;
+}
+
 } // namespace gitpp
