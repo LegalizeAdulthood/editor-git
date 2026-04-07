@@ -13,15 +13,22 @@ configure_file("test_data.h.in" "include/test_data.h")
 file(REMOVE_RECURSE "${TEST_DATA_DIR}")
 file(MAKE_DIRECTORY "${TEST_NON_EXISTING_REPOSITORY}")
 
-file(MAKE_DIRECTORY "${TEST_EXISTING_EMPTY_REPOSITORY}")
-execute_process(COMMAND "${GIT_EXECUTABLE}" "init"
-    WORKING_DIRECTORY "${TEST_EXISTING_EMPTY_REPOSITORY}"
-    COMMAND_ERROR_IS_FATAL ANY)
+function(create_repository dir)
+    file(MAKE_DIRECTORY "${dir}")
+    execute_process(COMMAND "${GIT_EXECUTABLE}" "init"
+        WORKING_DIRECTORY "${dir}"
+        COMMAND_ERROR_IS_FATAL ANY)
+    execute_process(COMMAND "${GIT_EXECUTABLE}" "config" "--local" "user.name" "Test"
+        WORKING_DIRECTORY "${dir}"
+        COMMAND_ERROR_IS_FATAL ANY)
+    execute_process(COMMAND "${GIT_EXECUTABLE}" "config" "--local" "user.email" "test@example.org"
+        WORKING_DIRECTORY "${dir}"
+        COMMAND_ERROR_IS_FATAL ANY)
+endfunction()
 
-file(MAKE_DIRECTORY "${TEST_EXISTING_REPOSITORY}")
-execute_process(COMMAND "${GIT_EXECUTABLE}" "init"
-    WORKING_DIRECTORY "${TEST_EXISTING_REPOSITORY}"
-    COMMAND_ERROR_IS_FATAL ANY)
+create_repository("${TEST_EXISTING_EMPTY_REPOSITORY}")
+
+create_repository("${TEST_EXISTING_REPOSITORY}")
 file(WRITE "${TEST_EXISTING_REPOSITORY}/file.txt" "1\n")
 execute_process(COMMAND "${GIT_EXECUTABLE}" "add" "file.txt"
     WORKING_DIRECTORY "${TEST_EXISTING_REPOSITORY}"
