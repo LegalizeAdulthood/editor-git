@@ -1,0 +1,8 @@
+#pragma once
+
+namespace gitpp::test
+{
+
+constexpr const char *SCRATCH_DIR{"@TEST_SCRATCH_DIR@"};
+
+}
