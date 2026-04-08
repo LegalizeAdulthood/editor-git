@@ -22,7 +22,10 @@ public:
 
     Oid id() const;
 
-    git_tree_entry *handle() const { return m_handle; }
+    git_tree_entry *handle() const
+    {
+        return m_handle;
+    }
 
 private:
     Git m_git;

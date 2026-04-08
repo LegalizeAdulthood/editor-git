@@ -22,7 +22,7 @@ using CommitHistory = std::vector<CommitInfo>;
 class Repository
 {
 public:
-    static void create(const std::filesystem::path& path);
+    static void create(const std::filesystem::path &path);
 
     Repository() = delete;
     Repository(const std::filesystem::path &path);

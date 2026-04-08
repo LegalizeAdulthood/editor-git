@@ -19,8 +19,14 @@ public:
     Tree &operator=(const Tree &rhs) = delete;
     Tree &operator=(Tree &&rhs) noexcept;
 
-    git_tree *handle() const { return m_handle; }
-    explicit operator bool() const { return m_handle != nullptr; }
+    git_tree *handle() const
+    {
+        return m_handle;
+    }
+    explicit operator bool() const
+    {
+        return m_handle != nullptr;
+    }
 
 private:
     Git m_git;

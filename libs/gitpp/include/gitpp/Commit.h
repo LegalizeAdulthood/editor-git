@@ -26,7 +26,10 @@ public:
     Oid parent_id(unsigned int n) const;
     Oid tree_id() const;
 
-    git_commit *handle() const { return m_handle; }
+    git_commit *handle() const
+    {
+        return m_handle;
+    }
 
 private:
     Git m_git;

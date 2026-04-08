@@ -20,7 +20,10 @@ public:
 
     Oid id() const;
 
-    git_object *handle() const { return m_handle; }
+    git_object *handle() const
+    {
+        return m_handle;
+    }
 
 private:
     Git m_git;

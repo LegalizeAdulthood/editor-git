@@ -17,7 +17,10 @@ public:
     Signature &operator=(const Signature &rhs) = delete;
     Signature &operator=(Signature &&rhs) = delete;
 
-    git_signature *handle() const { return m_handle; }
+    git_signature *handle() const
+    {
+        return m_handle;
+    }
 
 private:
     Git m_git;
