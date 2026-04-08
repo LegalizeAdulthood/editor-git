@@ -14,6 +14,8 @@ add_library(gitpp
     Oid.cpp
     include/gitpp/Repository.h
     Repository.cpp
+    include/gitpp/RevisionWalker.h
+    RevisionWalker.cpp
     include/gitpp/Signature.h
     Signature.cpp
     include/gitpp/Tree.h

@@ -4,6 +4,7 @@
 #include <gitpp/Config.h>
 #include <gitpp/Index.h>
 #include <gitpp/Object.h>
+#include <gitpp/RevisionWalker.h>
 #include <gitpp/Signature.h>
 #include <gitpp/Tree.h>
 
@@ -73,13 +74,12 @@ CommitHistory Repository::get_file_history(const char *path)
         return history;
     }
 
-    git_revwalk *walker{};
-    check_git_error(git_revwalk_new(&walker, m_handle));
-    check_git_error(git_revwalk_push_head(walker));
-    git_revwalk_sorting(walker, GIT_SORT_TIME);
+    RevisionWalker walker{m_handle};
+    walker.push_head();
+    walker.sorting(GIT_SORT_TIME);
 
     Oid oid;
-    while (git_revwalk_next(oid.ptr(), walker) == 0)
+    while (walker.next(oid))
     {
         Commit commit{m_handle, oid};
 
@@ -117,7 +117,6 @@ CommitHistory Repository::get_file_history(const char *path)
         git_diff_free(diff);
     }
 
-    git_revwalk_free(walker);
     return history;
 }
 
