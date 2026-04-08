@@ -1,5 +1,6 @@
 #include <gitpp/Repository.h>
 
+#include <gitpp/Blob.h>
 #include <gitpp/Commit.h>
 #include <gitpp/Config.h>
 #include <gitpp/Diff.h>
@@ -115,18 +116,9 @@ std::string Repository::get_file_content(const char *commit_id, const char *path
     Commit commit{m_handle, oid};
     Tree tree{m_handle, commit.tree_id()};
     TreeEntry entry{tree, path};
+    Blob blob{m_handle, entry.id()};
 
-    git_blob *blob{};
-    check_git_error(git_blob_lookup(&blob, m_handle, entry.id().ptr()));
-
-    const char *content = static_cast<const char *>(git_blob_rawcontent(blob));
-    git_object_size_t size = git_blob_rawsize(blob);
-
-    std::string result(content, size);
-
-    git_blob_free(blob);
-
-    return result;
+    return blob.content();
 }
 
 } // namespace gitpp

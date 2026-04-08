@@ -1,6 +1,8 @@
  find_package(libgit2 CONFIG REQUIRED)
 
 add_library(gitpp
+    include/gitpp/Blob.h
+    Blob.cpp
     include/gitpp/Commit.h
     Commit.cpp
     include/gitpp/Config.h
