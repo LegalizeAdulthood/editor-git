@@ -90,9 +90,8 @@ void MainFrame::OnNew(wxCommandEvent &event)
 
 void MainFrame::OnOpen(wxCommandEvent &event)
 {
-    wxFileDialog dialog(this, "Open File", "", "",
-        "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    wxFileDialog dialog(
+        this, "Open File", "", "", "Text files (*.txt)|*.txt|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (dialog.ShowModal() == wxID_OK)
     {
@@ -106,8 +105,7 @@ void MainFrame::OnSave(wxCommandEvent &event)
 {
     if (m_filePath.IsEmpty())
     {
-        wxFileDialog dialog(this, "Save File", "", "",
-            "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+        wxFileDialog dialog(this, "Save File", "", "", "Text files (*.txt)|*.txt|All files (*.*)|*.*",
             wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
         if (dialog.ShowModal() == wxID_OK)
@@ -160,9 +158,10 @@ void MainFrame::OnPaste(wxCommandEvent &event)
 
 bool EditorApp::OnInit()
 {
-    std::filesystem::path dir{wxStandardPaths::Get().GetUserDataDir().ToStdString()};
-    dir /= "UtahCpp";
-    dir /= "Editor-Git";
+    SetVendorName("UtahCpp");
+    SetAppName("Editor");
+    wxStandardPaths::Get().UseAppInfo(wxStandardPaths::AppInfo_VendorName | wxStandardPaths::AppInfo_AppName);
+    const std::filesystem::path dir{wxStandardPaths::Get().GetUserDataDir().ToStdString()};
     if (!std::filesystem::is_directory(dir))
     {
         std::filesystem::create_directories(dir);
