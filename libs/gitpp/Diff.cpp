@@ -17,22 +17,12 @@ Diff::~Diff()
     git_diff_free(m_handle);
 }
 
-size_t Diff::num_deltas() const
-{
-    return git_diff_num_deltas(m_handle);
-}
-
-const git_diff_delta *Diff::get_delta(size_t idx) const
-{
-    return git_diff_get_delta(m_handle, idx);
-}
-
 bool Diff::contains_file(const char *path) const
 {
-    size_t count = num_deltas();
+    size_t count = git_diff_num_deltas(m_handle);
     for (size_t i = 0; i < count; ++i)
     {
-        const git_diff_delta *delta = get_delta(i);
+        const git_diff_delta *delta = git_diff_get_delta(m_handle, i);
         if (delta->new_file.path && strcmp(delta->new_file.path, path) == 0)
         {
             return true;

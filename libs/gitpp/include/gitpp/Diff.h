@@ -19,9 +19,6 @@ public:
     Diff &operator=(const Diff &rhs) = delete;
     Diff &operator=(Diff &&rhs) = delete;
 
-    size_t num_deltas() const;
-    const git_diff_delta *get_delta(size_t idx) const;
-
     bool contains_file(const char *path) const;
 
 private:
