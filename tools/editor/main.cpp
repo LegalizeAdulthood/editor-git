@@ -10,7 +10,7 @@ namespace
 class MainFrame : public wxFrame
 {
 public:
-    MainFrame();
+    explicit MainFrame(version::RepositoryPtr repo);
 
 private:
     void OnNew(wxCommandEvent &event);
@@ -26,6 +26,7 @@ private:
 
     wxTextCtrl *m_textCtrl;
     wxString m_filePath;
+    version::RepositoryPtr m_repo;
 };
 
 class EditorApp : public wxApp
@@ -34,8 +35,9 @@ public:
     bool OnInit() override;
 };
 
-MainFrame::MainFrame():
-    wxFrame(nullptr, wxID_ANY, "Editor", wxDefaultPosition, wxSize(800, 600))
+MainFrame::MainFrame(version::RepositoryPtr repo) :
+    wxFrame(nullptr, wxID_ANY, "Editor", wxDefaultPosition, wxSize(800, 600)),
+    m_repo(repo)
 {
     wxMenuBar *menuBar = new wxMenuBar();
 
@@ -165,10 +167,10 @@ bool EditorApp::OnInit()
     {
         std::filesystem::create_directories(dir);
     }
-    std::shared_ptr repo{
+    version::RepositoryPtr repo{
         std::filesystem::is_directory(dir / ".git") ? version::open_repository(dir) : version::create_repository(dir)};
 
-    MainFrame *frame = new MainFrame();
+    MainFrame *frame = new MainFrame(repo);
     frame->Show(true);
     return true;
 }

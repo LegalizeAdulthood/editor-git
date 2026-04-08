@@ -22,7 +22,9 @@ public:
     virtual std::string get_config_string(const char *name) = 0;
 };
 
-std::shared_ptr<Repository> open_repository(const std::filesystem::path &path);
-std::shared_ptr<Repository> create_repository(const std::filesystem::path &path);
+using RepositoryPtr = std::shared_ptr<Repository>;
+
+RepositoryPtr open_repository(const std::filesystem::path &path);
+RepositoryPtr create_repository(const std::filesystem::path &path);
 
 } // namespace version

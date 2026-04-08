@@ -46,12 +46,12 @@ std::string GitRepository::get_config_string(const char *name)
 namespace version
 {
 
-std::shared_ptr<Repository> open_repository(const std::filesystem::path &path)
+RepositoryPtr open_repository(const std::filesystem::path &path)
 {
     return std::make_shared<GitRepository>(path);
 }
 
-std::shared_ptr<Repository> create_repository(const std::filesystem::path &path)
+RepositoryPtr create_repository(const std::filesystem::path &path)
 {
     gitpp::Repository::create(path);
     return open_repository(path);
