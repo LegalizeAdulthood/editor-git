@@ -1,6 +1,7 @@
 #include <editor-version/Repository.h>
 
 #include <wx/filedlg.h>
+#include <wx/stdpaths.h>
 #include <wx/wx.h>
 
 namespace
@@ -157,6 +158,16 @@ void MainFrame::OnPaste(wxCommandEvent &event)
 
 bool EditorApp::OnInit()
 {
+    std::filesystem::path dir{wxStandardPaths::Get().GetUserDataDir().ToStdString()};
+    dir /= "UtahCpp";
+    dir /= "Editor-Git";
+    if (!std::filesystem::is_directory(dir))
+    {
+        std::filesystem::create_directories(dir);
+    }
+    std::shared_ptr repo{
+        std::filesystem::is_directory(dir / ".git") ? version::open_repository(dir) : version::create_repository(dir)};
+
     MainFrame *frame = new MainFrame();
     frame->Show(true);
     return true;

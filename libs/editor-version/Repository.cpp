@@ -1,18 +1,18 @@
 #include <editor-version/Repository.h>
 
+#include <gitpp/Config.h>
 #include <gitpp/Repository.h>
 
-namespace version
+#include <string>
+
+namespace
 {
 
-class GitRepository : public Repository
+class GitRepository : public version::Repository
 {
 public:
     GitRepository() = delete;
-    GitRepository(const std::filesystem::path &path)
-        : m_repository(path.string().c_str())
-    {
-    }
+    GitRepository(const std::filesystem::path &path);
     GitRepository(const GitRepository &rhs) = delete;
     GitRepository(GitRepository &&rhs) = delete;
     ~GitRepository() override = default;
@@ -24,13 +24,37 @@ public:
         return m_repository.is_empty();
     }
 
+    std::string get_config_string(const char *name) override;
+
 private:
     gitpp::Repository m_repository;
 };
 
+GitRepository::GitRepository(const std::filesystem::path &path) :
+    m_repository(path.string().c_str())
+{
+}
+
+std::string GitRepository::get_config_string(const char *name)
+{
+    gitpp::Config config{m_repository};
+    return config.get_string(name);
+}
+
+} // namespace
+
+namespace version
+{
+
 std::shared_ptr<Repository> open_repository(const std::filesystem::path &path)
 {
     return std::make_shared<GitRepository>(path);
+}
+
+std::shared_ptr<Repository> create_repository(const std::filesystem::path &path)
+{
+    gitpp::Repository::create(path);
+    return open_repository(path);
 }
 
 } // namespace version

@@ -22,3 +22,15 @@ TEST(TestRepository, openExistingEmpty)
 
     EXPECT_TRUE(repo->is_empty());
 }
+
+TEST(TestRepository, createSetsUserNameEmail)
+{
+    std::filesystem::remove_all(version::test::SCRATCH_DIR);
+    std::filesystem::create_directory(version::test::SCRATCH_DIR);
+
+    std::shared_ptr repo{version::create_repository(version::test::SCRATCH_DIR)};
+
+    ASSERT_TRUE(repo);
+    EXPECT_EQ("Utah C++ Editor Version", repo->get_config_string("user.name"));
+    EXPECT_EQ("utahcpp@example.com", repo->get_config_string("user.email"));
+}

@@ -1,6 +1,8 @@
  find_package(libgit2 CONFIG REQUIRED)
 
 add_library(gitpp
+    include/gitpp/Config.h
+    Config.cpp
     include/gitpp/Git.h
     include/gitpp/Repository.h
     Repository.cpp

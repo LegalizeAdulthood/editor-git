@@ -3,6 +3,7 @@
 namespace version::test
 {
 
+constexpr const char *SCRATCH_DIR{"@TEST_SCRATCH_DIR@"};
 constexpr const char *EXISTING_REPOSITORY{"@TEST_EXISTING_REPOSITORY@"};
 constexpr const char *NON_EXISTING_REPOSITORY{"@TEST_NON_EXISTING_REPOSITORY@"};
 constexpr const char *EXISTING_EMPTY_REPOSITORY{"@TEST_EXISTING_EMPTY_REPOSITORY@"};
