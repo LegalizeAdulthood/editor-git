@@ -8,6 +8,7 @@
 #include <gitpp/RevisionWalker.h>
 #include <gitpp/Signature.h>
 #include <gitpp/Tree.h>
+#include <gitpp/TreeEntry.h>
 
 #include <stdexcept>
 
@@ -113,12 +114,10 @@ std::string Repository::get_file_content(const char *commit_id, const char *path
 
     Commit commit{m_handle, oid};
     Tree tree{m_handle, commit.tree_id()};
-
-    git_tree_entry *entry{};
-    check_git_error(git_tree_entry_bypath(&entry, tree.handle(), path));
+    TreeEntry entry{tree, path};
 
     git_blob *blob{};
-    check_git_error(git_blob_lookup(&blob, m_handle, git_tree_entry_id(entry)));
+    check_git_error(git_blob_lookup(&blob, m_handle, entry.id().ptr()));
 
     const char *content = static_cast<const char *>(git_blob_rawcontent(blob));
     git_object_size_t size = git_blob_rawsize(blob);
@@ -126,7 +125,6 @@ std::string Repository::get_file_content(const char *commit_id, const char *path
     std::string result(content, size);
 
     git_blob_free(blob);
-    git_tree_entry_free(entry);
 
     return result;
 }
