@@ -4,17 +4,18 @@
 #include <wx/stdpaths.h>
 #include <wx/wx.h>
 
+#include <filesystem>
+
 namespace
 {
 
 class MainFrame : public wxFrame
 {
 public:
-    explicit MainFrame(version::RepositoryPtr repo);
+    explicit MainFrame(const std::filesystem::path &dir, version::RepositoryPtr repo);
 
 private:
     void OnNew(wxCommandEvent &event);
-    void OnOpen(wxCommandEvent &event);
     void OnSave(wxCommandEvent &event);
     void OnExit(wxCommandEvent &event);
     void OnAbout(wxCommandEvent &event);
@@ -24,8 +25,8 @@ private:
     void OnCopy(wxCommandEvent &event);
     void OnPaste(wxCommandEvent &event);
 
-    wxTextCtrl *m_textCtrl;
-    wxString m_filePath;
+    wxTextCtrl *m_text_ctrl;
+    std::filesystem::path m_file_path;
     version::RepositoryPtr m_repo;
 };
 
@@ -35,42 +36,45 @@ public:
     bool OnInit() override;
 };
 
-MainFrame::MainFrame(version::RepositoryPtr repo) :
+MainFrame::MainFrame(const std::filesystem::path &dir, version::RepositoryPtr repo) :
     wxFrame(nullptr, wxID_ANY, "Editor", wxDefaultPosition, wxSize(800, 600)),
+    m_file_path(dir / "config.txt"),
     m_repo(repo)
 {
-    wxMenuBar *menuBar = new wxMenuBar();
+    wxMenuBar *menu_bar = new wxMenuBar();
 
-    wxMenu *fileMenu = new wxMenu();
-    fileMenu->Append(wxID_NEW, "&New\tCtrl+N");
-    fileMenu->Append(wxID_OPEN, "&Open\tCtrl+O");
-    fileMenu->Append(wxID_SAVE, "&Save\tCtrl+S");
-    fileMenu->AppendSeparator();
-    fileMenu->Append(wxID_EXIT, "E&xit\tAlt+F4");
-    menuBar->Append(fileMenu, "&File");
+    wxMenu *file_menu = new wxMenu();
+    file_menu->Append(wxID_NEW, "&New\tCtrl+N");
+    file_menu->Append(wxID_SAVE, "&Save\tCtrl+S");
+    file_menu->AppendSeparator();
+    file_menu->Append(wxID_EXIT, "E&xit\tAlt+F4");
+    menu_bar->Append(file_menu, "&File");
 
-    wxMenu *editMenu = new wxMenu();
-    editMenu->Append(wxID_UNDO, "&Undo\tCtrl+Z");
-    editMenu->Append(wxID_REDO, "&Redo\tCtrl+Y");
-    editMenu->AppendSeparator();
-    editMenu->Append(wxID_CUT, "Cu&t\tCtrl+X");
-    editMenu->Append(wxID_COPY, "&Copy\tCtrl+C");
-    editMenu->Append(wxID_PASTE, "&Paste\tCtrl+V");
-    menuBar->Append(editMenu, "&Edit");
+    wxMenu *edit_menu = new wxMenu();
+    edit_menu->Append(wxID_UNDO, "&Undo\tCtrl+Z");
+    edit_menu->Append(wxID_REDO, "&Redo\tCtrl+Y");
+    edit_menu->AppendSeparator();
+    edit_menu->Append(wxID_CUT, "Cu&t\tCtrl+X");
+    edit_menu->Append(wxID_COPY, "&Copy\tCtrl+C");
+    edit_menu->Append(wxID_PASTE, "&Paste\tCtrl+V");
+    menu_bar->Append(edit_menu, "&Edit");
 
-    wxMenu *helpMenu = new wxMenu();
-    helpMenu->Append(wxID_ABOUT, "&About");
-    menuBar->Append(helpMenu, "&Help");
+    wxMenu *help_menu = new wxMenu();
+    help_menu->Append(wxID_ABOUT, "&About");
+    menu_bar->Append(help_menu, "&Help");
 
-    wxFrameBase::SetMenuBar(menuBar);
+    wxFrameBase::SetMenuBar(menu_bar);
 
     wxFrameBase::CreateStatusBar();
     wxFrameBase::SetStatusText("Ready");
 
-    m_textCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+    m_text_ctrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+    if (std::filesystem::exists(m_file_path))
+    {
+        m_text_ctrl->LoadFile(m_file_path.string());
+    }
 
     Bind(wxEVT_MENU, &MainFrame::OnNew, this, wxID_NEW);
-    Bind(wxEVT_MENU, &MainFrame::OnOpen, this, wxID_OPEN);
     Bind(wxEVT_MENU, &MainFrame::OnSave, this, wxID_SAVE);
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
@@ -83,42 +87,13 @@ MainFrame::MainFrame(version::RepositoryPtr repo) :
 
 void MainFrame::OnNew(wxCommandEvent &event)
 {
-    m_textCtrl->Clear();
-    m_filePath.Clear();
+    m_text_ctrl->Clear();
     SetTitle("Editor");
-}
-
-void MainFrame::OnOpen(wxCommandEvent &event)
-{
-    wxFileDialog dialog(
-        this, "Open File", "", "", "Text files (*.txt)|*.txt|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-    if (dialog.ShowModal() == wxID_OK)
-    {
-        m_filePath = dialog.GetPath();
-        m_textCtrl->LoadFile(m_filePath);
-        SetTitle("Editor - " + dialog.GetFilename());
-    }
 }
 
 void MainFrame::OnSave(wxCommandEvent &event)
 {
-    if (m_filePath.IsEmpty())
-    {
-        wxFileDialog dialog(this, "Save File", "", "", "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-            wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-
-        if (dialog.ShowModal() == wxID_OK)
-        {
-            m_filePath = dialog.GetPath();
-            m_textCtrl->SaveFile(m_filePath);
-            SetTitle("Editor - " + dialog.GetFilename());
-        }
-    }
-    else
-    {
-        m_textCtrl->SaveFile(m_filePath);
-    }
+    m_text_ctrl->SaveFile(m_file_path.string());
 }
 
 void MainFrame::OnExit(wxCommandEvent &event)
@@ -133,27 +108,27 @@ void MainFrame::OnAbout(wxCommandEvent &event)
 
 void MainFrame::OnUndo(wxCommandEvent &event)
 {
-    m_textCtrl->Undo();
+    m_text_ctrl->Undo();
 }
 
 void MainFrame::OnRedo(wxCommandEvent &event)
 {
-    m_textCtrl->Redo();
+    m_text_ctrl->Redo();
 }
 
 void MainFrame::OnCut(wxCommandEvent &event)
 {
-    m_textCtrl->Cut();
+    m_text_ctrl->Cut();
 }
 
 void MainFrame::OnCopy(wxCommandEvent &event)
 {
-    m_textCtrl->Copy();
+    m_text_ctrl->Copy();
 }
 
 void MainFrame::OnPaste(wxCommandEvent &event)
 {
-    m_textCtrl->Paste();
+    m_text_ctrl->Paste();
 }
 
 bool EditorApp::OnInit()
@@ -169,7 +144,7 @@ bool EditorApp::OnInit()
     version::RepositoryPtr repo{
         std::filesystem::is_directory(dir / ".git") ? version::open_repository(dir) : version::create_repository(dir)};
 
-    MainFrame *frame = new MainFrame(repo);
+    MainFrame *frame = new MainFrame(dir, repo);
     frame->Show(true);
     return true;
 }
