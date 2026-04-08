@@ -3,6 +3,7 @@
 #include <gitpp/Commit.h>
 #include <gitpp/Config.h>
 #include <gitpp/Index.h>
+#include <gitpp/Tree.h>
 
 #include <stdexcept>
 
@@ -47,8 +48,7 @@ void Repository::commit(const char *message)
     Index index{m_handle};
     Oid tree_id = index.write_tree();
 
-    git_tree *tree{};
-    check_git_error(git_tree_lookup(&tree, m_handle, tree_id.ptr()));
+    Tree tree{m_handle, tree_id};
 
     git_signature *signature{};
     check_git_error(git_signature_default(&signature, m_handle));
@@ -57,7 +57,7 @@ void Repository::commit(const char *message)
     if (is_empty())
     {
         check_git_error(
-            git_commit_create_v(commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree, 0));
+            git_commit_create_v(commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree.handle(), 0));
     }
     else
     {
@@ -67,11 +67,10 @@ void Repository::commit(const char *message)
         git_object_free(parent_obj);
 
         check_git_error(git_commit_create_v(
-            commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree, 1, parent.handle()));
+            commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree.handle(), 1, parent.handle()));
     }
 
     git_signature_free(signature);
-    git_tree_free(tree);
 }
 
 CommitHistory Repository::get_file_history(const char *path)
@@ -93,18 +92,16 @@ CommitHistory Repository::get_file_history(const char *path)
     {
         Commit commit{m_handle, oid};
 
-        git_tree *tree{};
-        git_tree *parent_tree{};
+        Tree tree{m_handle, commit.tree_id()};
+        Tree parent_tree;
         git_diff *diff{};
-
-        check_git_error(git_tree_lookup(&tree, m_handle, commit.tree_id().ptr()));
 
         if (commit.parent_count() > 0)
         {
-            check_git_error(git_tree_lookup(&parent_tree, m_handle, Commit{m_handle, commit.parent_id(0)}.tree_id().ptr()));
+            parent_tree = Tree{m_handle, Commit{m_handle, commit.parent_id(0)}.tree_id()};
         }
 
-        git_diff_tree_to_tree(&diff, m_handle, parent_tree, tree, nullptr);
+        git_diff_tree_to_tree(&diff, m_handle, parent_tree.handle(), tree.handle(), nullptr);
 
         bool file_changed = false;
         size_t num_deltas = git_diff_num_deltas(diff);
@@ -127,8 +124,6 @@ CommitHistory Repository::get_file_history(const char *path)
         }
 
         git_diff_free(diff);
-        git_tree_free(parent_tree);
-        git_tree_free(tree);
     }
 
     git_revwalk_free(walker);

@@ -12,6 +12,8 @@ add_library(gitpp
     Oid.cpp
     include/gitpp/Repository.h
     Repository.cpp
+    include/gitpp/Tree.h
+    Tree.cpp
 )
 target_include_directories(gitpp PUBLIC include)
 target_link_libraries(gitpp PUBLIC libgit2::libgit2package)
