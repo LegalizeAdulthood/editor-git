@@ -48,24 +48,19 @@ void Repository::stage_file(const char *path)
 void Repository::commit(const char *message)
 {
     Index index{m_handle};
-    Oid tree_id = index.write_tree();
-
-    Tree tree{m_handle, tree_id};
+    Tree tree{m_handle, index.write_tree()};
     Signature signature{m_handle};
 
     Oid commit_id;
     if (is_empty())
     {
-        check_git_error(
-            git_commit_create_v(commit_id.ptr(), m_handle, "HEAD", signature.handle(), signature.handle(), nullptr, message, tree.handle(), 0));
+        commit_id.create_commit(m_handle, signature, message, tree);
     }
     else
     {
         Object parent_obj{m_handle, "HEAD"};
         Commit parent{m_handle, parent_obj.id()};
-
-        check_git_error(git_commit_create_v(
-            commit_id.ptr(), m_handle, "HEAD", signature.handle(), signature.handle(), nullptr, message, tree.handle(), 1, parent.handle()));
+        commit_id.create_commit(m_handle, signature, message, tree, parent);
     }
 }
 
