@@ -106,4 +106,29 @@ CommitHistory Repository::get_file_history(const char *path)
     return history;
 }
 
+std::string Repository::get_file_content(const char *commit_id, const char *path)
+{
+    Oid oid;
+    check_git_error(git_oid_fromstr(oid.ptr(), commit_id));
+
+    Commit commit{m_handle, oid};
+    Tree tree{m_handle, commit.tree_id()};
+
+    git_tree_entry *entry{};
+    check_git_error(git_tree_entry_bypath(&entry, tree.handle(), path));
+
+    git_blob *blob{};
+    check_git_error(git_blob_lookup(&blob, m_handle, git_tree_entry_id(entry)));
+
+    const char *content = static_cast<const char *>(git_blob_rawcontent(blob));
+    git_object_size_t size = git_blob_rawsize(blob);
+
+    std::string result(content, size);
+
+    git_blob_free(blob);
+    git_tree_entry_free(entry);
+
+    return result;
+}
+
 } // namespace gitpp

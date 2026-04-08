@@ -30,6 +30,8 @@ public:
 
     version::History get_file_history(const char *name) override;
 
+    std::string get_file_content(const char *commit_id, const char *name) override;
+
 private:
     gitpp::Repository m_repository;
 };
@@ -61,6 +63,11 @@ version::History GitRepository::get_file_history(const char *name)
         history.push_back({commit.id, commit.message});
     }
     return history;
+}
+
+std::string GitRepository::get_file_content(const char *commit_id, const char *name)
+{
+    return m_repository.get_file_content(commit_id, name);
 }
 
 } // namespace

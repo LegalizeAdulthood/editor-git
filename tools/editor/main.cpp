@@ -112,14 +112,33 @@ void MainFrame::OnOld(wxCommandEvent &event)
     {
         list->InsertItem(index, commit.id.substr(0, 8));
         list->SetItem(index, 1, commit.message);
+        list->SetItemPtrData(index, reinterpret_cast<wxUIntPtr>(&commit));
         ++index;
     }
 
+    // NOLINTBEGIN(bugprone-suspicious-enum-usage, clang-diagnostic-enum-enum-conversion)
     sizer->Add(list, 1, wxEXPAND | wxALL, 10);
-    sizer->Add(dialog.CreateButtonSizer(wxOK), 0, wxALIGN_CENTER | wxBOTTOM, 10);
+    sizer->Add(dialog.CreateButtonSizer(wxOK | wxCANCEL), 0, wxALIGN_CENTER | wxBOTTOM, 10);
+    // NOLINTend(bugprone-suspicious-enum-usage, clang-diagnostic-enum-enum-conversion)
     dialog.SetSizer(sizer);
 
-    dialog.ShowModal();
+    wxButton *ok_button = wxDynamicCast(dialog.FindWindow(wxID_OK), wxButton);
+    ok_button->Disable();
+
+    list->Bind(wxEVT_LIST_ITEM_SELECTED, [ok_button](wxListEvent &) { ok_button->Enable(); });
+    list->Bind(wxEVT_LIST_ITEM_DESELECTED, [ok_button](wxListEvent &) { ok_button->Disable(); });
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        long selected = list->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        if (selected != -1)
+        {
+            const auto *commit = reinterpret_cast<const version::Commit *>(list->GetItemData(selected));
+            std::string content = m_repo->get_file_content(commit->id.c_str(), m_file_path.filename().string().c_str());
+            m_text_ctrl->SetValue(content);
+            m_text_ctrl->SaveFile(m_file_path.string());
+        }
+    }
 }
 
 void MainFrame::OnSave(wxCommandEvent &event)

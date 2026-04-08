@@ -37,6 +37,7 @@ public:
     void stage_file(const char *path);
     void commit(const char *message);
     CommitHistory get_file_history(const char *path);
+    std::string get_file_content(const char *commit_id, const char *path);
 
     git_repository *handle() const
     {

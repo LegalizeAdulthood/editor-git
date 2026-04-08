@@ -28,6 +28,8 @@ public:
     virtual void commit_file(const char *name) = 0;
 
     virtual History get_file_history(const char *name) = 0;
+
+    virtual std::string get_file_content(const char *commit_id, const char *name) = 0;
 };
 
 using RepositoryPtr = std::shared_ptr<Repository>;
