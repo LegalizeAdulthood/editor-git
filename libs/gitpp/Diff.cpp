@@ -2,7 +2,7 @@
 
 #include <gitpp/Tree.h>
 
-#include <cstring>
+#include <string_view>
 
 namespace gitpp
 {
@@ -19,11 +19,11 @@ Diff::~Diff()
 
 bool Diff::contains_file(const char *path) const
 {
-    size_t count = git_diff_num_deltas(m_handle);
-    for (size_t i = 0; i < count; ++i)
+    const std::string_view target{path};
+    for (size_t i = 0; i < git_diff_num_deltas(m_handle); ++i)
     {
         const git_diff_delta *delta = git_diff_get_delta(m_handle, i);
-        if (delta->new_file.path && strcmp(delta->new_file.path, path) == 0)
+        if (delta->new_file.path && std::string_view{delta->new_file.path} == target)
         {
             return true;
         }
