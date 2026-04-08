@@ -1,6 +1,7 @@
 #include <gitpp/Repository.h>
 
 #include <gitpp/Config.h>
+#include <gitpp/Index.h>
 
 #include <stdexcept>
 
@@ -31,6 +32,47 @@ Repository::~Repository()
 bool Repository::is_empty() const
 {
     return git_repository_is_empty(m_handle) == 1;
+}
+
+void Repository::stage_file(const char *path)
+{
+    Index index{m_handle};
+    index.add_bypath(path);
+    index.write();
+}
+
+void Repository::commit(const char *message)
+{
+    Index index{m_handle};
+    Oid tree_id = index.write_tree();
+
+    git_tree *tree{};
+    check_git_error(git_tree_lookup(&tree, m_handle, tree_id.ptr()));
+
+    git_signature *signature{};
+    check_git_error(git_signature_default(&signature, m_handle));
+
+    Oid commit_id;
+    if (is_empty())
+    {
+        check_git_error(git_commit_create_v(
+            commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree, 0));
+    }
+    else
+    {
+        git_object *parent_obj{};
+        check_git_error(git_revparse_single(&parent_obj, m_handle, "HEAD"));
+        git_commit *parent{};
+        check_git_error(git_commit_lookup(&parent, m_handle, git_object_id(parent_obj)));
+        git_object_free(parent_obj);
+
+        check_git_error(git_commit_create_v(
+            commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree, 1, parent));
+        git_commit_free(parent);
+    }
+
+    git_signature_free(signature);
+    git_tree_free(tree);
 }
 
 } // namespace gitpp

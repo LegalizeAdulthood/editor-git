@@ -4,6 +4,10 @@ add_library(gitpp
     include/gitpp/Config.h
     Config.cpp
     include/gitpp/Git.h
+    include/gitpp/Index.h
+    Index.cpp
+    include/gitpp/Oid.h
+    Oid.cpp
     include/gitpp/Repository.h
     Repository.cpp
 )

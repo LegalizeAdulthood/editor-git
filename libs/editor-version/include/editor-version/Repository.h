@@ -7,11 +7,6 @@
 namespace version
 {
 
-struct Commit
-{
-    std::string message;
-};
-
 class Repository
 {
 public:
@@ -20,6 +15,8 @@ public:
     virtual bool is_empty() const = 0;
 
     virtual std::string get_config_string(const char *name) = 0;
+
+    virtual void commit_file(const char *name) = 0;
 };
 
 using RepositoryPtr = std::shared_ptr<Repository>;

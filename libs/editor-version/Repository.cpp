@@ -26,6 +26,8 @@ public:
 
     std::string get_config_string(const char *name) override;
 
+    void commit_file(const char *name) override;
+
 private:
     gitpp::Repository m_repository;
 };
@@ -39,6 +41,12 @@ std::string GitRepository::get_config_string(const char *name)
 {
     gitpp::Config config{m_repository};
     return config.get_string(name);
+}
+
+void GitRepository::commit_file(const char *name)
+{
+    m_repository.stage_file(name);
+    m_repository.commit("Checkpoint");
 }
 
 } // namespace

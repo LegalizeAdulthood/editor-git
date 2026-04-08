@@ -94,6 +94,7 @@ void MainFrame::OnNew(wxCommandEvent &event)
 void MainFrame::OnSave(wxCommandEvent &event)
 {
     m_text_ctrl->SaveFile(m_file_path.string());
+    m_repo->commit_file(m_file_path.filename().string().c_str());
 }
 
 void MainFrame::OnExit(wxCommandEvent &event)

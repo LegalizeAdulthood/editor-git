@@ -24,6 +24,9 @@ public:
 
     bool is_empty() const;
 
+    void stage_file(const char *path);
+    void commit(const char *message);
+
     git_repository *handle() const
     {
         return m_handle;
