@@ -3,9 +3,18 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace version
 {
+
+struct Commit
+{
+    std::string id;
+    std::string message;
+};
+
+using History = std::vector<Commit>;
 
 class Repository
 {
@@ -17,6 +26,8 @@ public:
     virtual std::string get_config_string(const char *name) = 0;
 
     virtual void commit_file(const char *name) = 0;
+
+    virtual History get_file_history(const char *name) = 0;
 };
 
 using RepositoryPtr = std::shared_ptr<Repository>;

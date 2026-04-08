@@ -5,9 +5,19 @@
 #include <git2.h>
 
 #include <filesystem>
+#include <string>
+#include <vector>
 
 namespace gitpp
 {
+
+struct CommitInfo
+{
+    std::string id;
+    std::string message;
+};
+
+using CommitHistory = std::vector<CommitInfo>;
 
 class Repository
 {
@@ -26,6 +36,7 @@ public:
 
     void stage_file(const char *path);
     void commit(const char *message);
+    CommitHistory get_file_history(const char *path);
 
     git_repository *handle() const
     {

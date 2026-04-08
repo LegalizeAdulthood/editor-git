@@ -28,6 +28,8 @@ public:
 
     void commit_file(const char *name) override;
 
+    version::History get_file_history(const char *name) override;
+
 private:
     gitpp::Repository m_repository;
 };
@@ -47,6 +49,18 @@ void GitRepository::commit_file(const char *name)
 {
     m_repository.stage_file(name);
     m_repository.commit("Checkpoint");
+}
+
+version::History GitRepository::get_file_history(const char *name)
+{
+    gitpp::CommitHistory gitpp_history = m_repository.get_file_history(name);
+    version::History history;
+    history.reserve(gitpp_history.size());
+    for (const auto &commit : gitpp_history)
+    {
+        history.push_back({commit.id, commit.message});
+    }
+    return history;
 }
 
 } // namespace

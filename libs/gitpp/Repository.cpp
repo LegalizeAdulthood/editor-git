@@ -55,8 +55,8 @@ void Repository::commit(const char *message)
     Oid commit_id;
     if (is_empty())
     {
-        check_git_error(git_commit_create_v(
-            commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree, 0));
+        check_git_error(
+            git_commit_create_v(commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree, 0));
     }
     else
     {
@@ -73,6 +73,78 @@ void Repository::commit(const char *message)
 
     git_signature_free(signature);
     git_tree_free(tree);
+}
+
+CommitHistory Repository::get_file_history(const char *path)
+{
+    CommitHistory history;
+
+    if (is_empty())
+    {
+        return history;
+    }
+
+    git_revwalk *walker{};
+    check_git_error(git_revwalk_new(&walker, m_handle));
+    check_git_error(git_revwalk_push_head(walker));
+    git_revwalk_sorting(walker, GIT_SORT_TIME);
+
+    git_oid oid;
+    while (git_revwalk_next(&oid, walker) == 0)
+    {
+        git_commit *commit{};
+        if (git_commit_lookup(&commit, m_handle, &oid) != 0)
+        {
+            continue;
+        }
+
+        git_tree *tree{};
+        git_tree *parent_tree{};
+        git_diff *diff{};
+
+        git_commit_tree(&tree, commit);
+
+        if (git_commit_parentcount(commit) > 0)
+        {
+            git_commit *parent{};
+            git_commit_parent(&parent, commit, 0);
+            git_commit_tree(&parent_tree, parent);
+            git_commit_free(parent);
+        }
+
+        git_diff_tree_to_tree(&diff, m_handle, parent_tree, tree, nullptr);
+
+        bool file_changed = false;
+        size_t num_deltas = git_diff_num_deltas(diff);
+        for (size_t i = 0; i < num_deltas; ++i)
+        {
+            const git_diff_delta *delta = git_diff_get_delta(diff, i);
+            if (delta->new_file.path && strcmp(delta->new_file.path, path) == 0)
+            {
+                file_changed = true;
+                break;
+            }
+        }
+
+        if (file_changed)
+        {
+            char id_str[GIT_OID_SHA1_HEXSIZE + 1];
+            git_oid_tostr(id_str, sizeof(id_str), &oid);
+
+            CommitInfo info;
+            info.id = id_str;
+            info.message = git_commit_message(commit);
+            history.push_back(std::move(info));
+        }
+
+        git_diff_free(diff);
+        git_tree_free(parent_tree);
+        git_tree_free(tree);
+        git_commit_free(commit);
+    }
+
+    git_revwalk_free(walker);
+    return history;
 }
 
 } // namespace gitpp

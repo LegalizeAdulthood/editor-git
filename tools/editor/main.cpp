@@ -1,6 +1,7 @@
 #include <editor-version/Repository.h>
 
 #include <wx/filedlg.h>
+#include <wx/listctrl.h>
 #include <wx/stdpaths.h>
 #include <wx/wx.h>
 
@@ -16,6 +17,7 @@ public:
 
 private:
     void OnNew(wxCommandEvent &event);
+    void OnOld(wxCommandEvent &event);
     void OnSave(wxCommandEvent &event);
     void OnExit(wxCommandEvent &event);
     void OnAbout(wxCommandEvent &event);
@@ -45,6 +47,7 @@ MainFrame::MainFrame(const std::filesystem::path &dir, version::RepositoryPtr re
 
     wxMenu *file_menu = new wxMenu();
     file_menu->Append(wxID_NEW, "&New\tCtrl+N");
+    file_menu->Append(wxID_OPEN, "&Old\tCtrl+O");
     file_menu->Append(wxID_SAVE, "&Save\tCtrl+S");
     file_menu->AppendSeparator();
     file_menu->Append(wxID_EXIT, "E&xit\tAlt+F4");
@@ -75,6 +78,7 @@ MainFrame::MainFrame(const std::filesystem::path &dir, version::RepositoryPtr re
     }
 
     Bind(wxEVT_MENU, &MainFrame::OnNew, this, wxID_NEW);
+    Bind(wxEVT_MENU, &MainFrame::OnOld, this, wxID_OPEN);
     Bind(wxEVT_MENU, &MainFrame::OnSave, this, wxID_SAVE);
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
@@ -89,6 +93,33 @@ void MainFrame::OnNew(wxCommandEvent &event)
 {
     m_text_ctrl->Clear();
     SetTitle("Editor");
+}
+
+void MainFrame::OnOld(wxCommandEvent &event)
+{
+    version::History history = m_repo->get_file_history(m_file_path.filename().string().c_str());
+
+    wxDialog dialog(this, wxID_ANY, "File History", wxDefaultPosition, wxSize(600, 400));
+    wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
+
+    wxListCtrl *list =
+        new wxListCtrl(&dialog, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_SINGLE_SEL);
+    list->InsertColumn(0, "Commit ID", wxLIST_FORMAT_LEFT, 100);
+    list->InsertColumn(1, "Message", wxLIST_FORMAT_LEFT, 480);
+
+    long index = 0;
+    for (const auto &commit : history)
+    {
+        list->InsertItem(index, commit.id.substr(0, 8));
+        list->SetItem(index, 1, commit.message);
+        ++index;
+    }
+
+    sizer->Add(list, 1, wxEXPAND | wxALL, 10);
+    sizer->Add(dialog.CreateButtonSizer(wxOK), 0, wxALIGN_CENTER | wxBOTTOM, 10);
+    dialog.SetSizer(sizer);
+
+    dialog.ShowModal();
 }
 
 void MainFrame::OnSave(wxCommandEvent &event)
