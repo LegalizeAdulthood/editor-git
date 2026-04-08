@@ -143,8 +143,12 @@ void MainFrame::OnOld(wxCommandEvent &event)
 
 void MainFrame::OnSave(wxCommandEvent &event)
 {
-    m_text_ctrl->SaveFile(m_file_path.string());
-    m_repo->commit_file(m_file_path.filename().string().c_str());
+    wxTextEntryDialog dialog(this, "Enter commit message:", "Save", "Checkpoint");
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        m_text_ctrl->SaveFile(m_file_path.string());
+        m_repo->commit_file(m_file_path.filename().string().c_str(), dialog.GetValue().ToStdString().c_str());
+    }
 }
 
 void MainFrame::OnExit(wxCommandEvent &event)

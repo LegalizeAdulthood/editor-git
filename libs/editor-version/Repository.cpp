@@ -26,7 +26,7 @@ public:
 
     std::string get_config_string(const char *name) override;
 
-    void commit_file(const char *name) override;
+    void commit_file(const char *name, const char *message) override;
 
     version::History get_file_history(const char *name) override;
 
@@ -47,10 +47,10 @@ std::string GitRepository::get_config_string(const char *name)
     return config.get_string(name);
 }
 
-void GitRepository::commit_file(const char *name)
+void GitRepository::commit_file(const char *name, const char *message)
 {
     m_repository.stage_file(name);
-    m_repository.commit("Checkpoint");
+    m_repository.commit(message);
 }
 
 version::History GitRepository::get_file_history(const char *name)

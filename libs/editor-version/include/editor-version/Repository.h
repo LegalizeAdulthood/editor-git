@@ -25,7 +25,7 @@ public:
 
     virtual std::string get_config_string(const char *name) = 0;
 
-    virtual void commit_file(const char *name) = 0;
+    virtual void commit_file(const char *name, const char *message) = 0;
 
     virtual History get_file_history(const char *name) = 0;
 
