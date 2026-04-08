@@ -8,10 +8,14 @@ add_library(gitpp
     include/gitpp/Git.h
     include/gitpp/Index.h
     Index.cpp
+    include/gitpp/Object.h
+    Object.cpp
     include/gitpp/Oid.h
     Oid.cpp
     include/gitpp/Repository.h
     Repository.cpp
+    include/gitpp/Signature.h
+    Signature.cpp
     include/gitpp/Tree.h
     Tree.cpp
 )

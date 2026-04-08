@@ -3,6 +3,8 @@
 #include <gitpp/Commit.h>
 #include <gitpp/Config.h>
 #include <gitpp/Index.h>
+#include <gitpp/Object.h>
+#include <gitpp/Signature.h>
 #include <gitpp/Tree.h>
 
 #include <stdexcept>
@@ -49,28 +51,22 @@ void Repository::commit(const char *message)
     Oid tree_id = index.write_tree();
 
     Tree tree{m_handle, tree_id};
-
-    git_signature *signature{};
-    check_git_error(git_signature_default(&signature, m_handle));
+    Signature signature{m_handle};
 
     Oid commit_id;
     if (is_empty())
     {
         check_git_error(
-            git_commit_create_v(commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree.handle(), 0));
+            git_commit_create_v(commit_id.ptr(), m_handle, "HEAD", signature.handle(), signature.handle(), nullptr, message, tree.handle(), 0));
     }
     else
     {
-        git_object *parent_obj{};
-        check_git_error(git_revparse_single(&parent_obj, m_handle, "HEAD"));
-        Commit parent{m_handle, git_object_id(parent_obj)};
-        git_object_free(parent_obj);
+        Object parent_obj{m_handle, "HEAD"};
+        Commit parent{m_handle, parent_obj.id()};
 
         check_git_error(git_commit_create_v(
-            commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree.handle(), 1, parent.handle()));
+            commit_id.ptr(), m_handle, "HEAD", signature.handle(), signature.handle(), nullptr, message, tree.handle(), 1, parent.handle()));
     }
-
-    git_signature_free(signature);
 }
 
 CommitHistory Repository::get_file_history(const char *path)
