@@ -1,5 +1,6 @@
 #include <gitpp/Repository.h>
 
+#include <gitpp/Commit.h>
 #include <gitpp/Config.h>
 #include <gitpp/Index.h>
 
@@ -62,13 +63,11 @@ void Repository::commit(const char *message)
     {
         git_object *parent_obj{};
         check_git_error(git_revparse_single(&parent_obj, m_handle, "HEAD"));
-        git_commit *parent{};
-        check_git_error(git_commit_lookup(&parent, m_handle, git_object_id(parent_obj)));
+        Commit parent{m_handle, git_object_id(parent_obj)};
         git_object_free(parent_obj);
 
         check_git_error(git_commit_create_v(
-            commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree, 1, parent));
-        git_commit_free(parent);
+            commit_id.ptr(), m_handle, "HEAD", signature, signature, nullptr, message, tree, 1, parent.handle()));
     }
 
     git_signature_free(signature);
@@ -89,27 +88,20 @@ CommitHistory Repository::get_file_history(const char *path)
     check_git_error(git_revwalk_push_head(walker));
     git_revwalk_sorting(walker, GIT_SORT_TIME);
 
-    git_oid oid;
-    while (git_revwalk_next(&oid, walker) == 0)
+    Oid oid;
+    while (git_revwalk_next(oid.ptr(), walker) == 0)
     {
-        git_commit *commit{};
-        if (git_commit_lookup(&commit, m_handle, &oid) != 0)
-        {
-            continue;
-        }
+        Commit commit{m_handle, oid};
 
         git_tree *tree{};
         git_tree *parent_tree{};
         git_diff *diff{};
 
-        git_commit_tree(&tree, commit);
+        check_git_error(git_tree_lookup(&tree, m_handle, commit.tree_id().ptr()));
 
-        if (git_commit_parentcount(commit) > 0)
+        if (commit.parent_count() > 0)
         {
-            git_commit *parent{};
-            git_commit_parent(&parent, commit, 0);
-            git_commit_tree(&parent_tree, parent);
-            git_commit_free(parent);
+            check_git_error(git_tree_lookup(&parent_tree, m_handle, Commit{m_handle, commit.parent_id(0)}.tree_id().ptr()));
         }
 
         git_diff_tree_to_tree(&diff, m_handle, parent_tree, tree, nullptr);
@@ -128,19 +120,15 @@ CommitHistory Repository::get_file_history(const char *path)
 
         if (file_changed)
         {
-            char id_str[GIT_OID_SHA1_HEXSIZE + 1];
-            git_oid_tostr(id_str, sizeof(id_str), &oid);
-
             CommitInfo info;
-            info.id = id_str;
-            info.message = git_commit_message(commit);
+            info.id = oid.to_string();
+            info.message = commit.message();
             history.push_back(std::move(info));
         }
 
         git_diff_free(diff);
         git_tree_free(parent_tree);
         git_tree_free(tree);
-        git_commit_free(commit);
     }
 
     git_revwalk_free(walker);
