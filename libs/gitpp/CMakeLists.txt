@@ -5,6 +5,8 @@ add_library(gitpp
     Commit.cpp
     include/gitpp/Config.h
     Config.cpp
+    include/gitpp/Diff.h
+    Diff.cpp
     include/gitpp/Git.h
     include/gitpp/Index.h
     Index.cpp

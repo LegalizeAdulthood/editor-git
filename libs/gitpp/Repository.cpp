@@ -2,6 +2,7 @@
 
 #include <gitpp/Commit.h>
 #include <gitpp/Config.h>
+#include <gitpp/Diff.h>
 #include <gitpp/Index.h>
 #include <gitpp/Object.h>
 #include <gitpp/RevisionWalker.h>
@@ -85,36 +86,21 @@ CommitHistory Repository::get_file_history(const char *path)
 
         Tree tree{m_handle, commit.tree_id()};
         Tree parent_tree;
-        git_diff *diff{};
 
         if (commit.parent_count() > 0)
         {
             parent_tree = Tree{m_handle, Commit{m_handle, commit.parent_id(0)}.tree_id()};
         }
 
-        git_diff_tree_to_tree(&diff, m_handle, parent_tree.handle(), tree.handle(), nullptr);
+        Diff diff{m_handle, parent_tree, tree};
 
-        bool file_changed = false;
-        size_t num_deltas = git_diff_num_deltas(diff);
-        for (size_t i = 0; i < num_deltas; ++i)
-        {
-            const git_diff_delta *delta = git_diff_get_delta(diff, i);
-            if (delta->new_file.path && strcmp(delta->new_file.path, path) == 0)
-            {
-                file_changed = true;
-                break;
-            }
-        }
-
-        if (file_changed)
+        if (diff.contains_file(path))
         {
             CommitInfo info;
             info.id = oid.to_string();
             info.message = commit.message();
             history.push_back(std::move(info));
         }
-
-        git_diff_free(diff);
     }
 
     return history;
