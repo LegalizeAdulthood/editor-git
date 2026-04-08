@@ -104,14 +104,16 @@ void MainFrame::OnOld(wxCommandEvent &event)
 
     wxListCtrl *list =
         new wxListCtrl(&dialog, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_SINGLE_SEL);
-    list->InsertColumn(0, "Commit ID", wxLIST_FORMAT_LEFT, 100);
-    list->InsertColumn(1, "Message", wxLIST_FORMAT_LEFT, 480);
+    list->InsertColumn(0, "Commit ID", wxLIST_FORMAT_LEFT, 80);
+    list->InsertColumn(1, "Timestamp", wxLIST_FORMAT_LEFT, 150);
+    list->InsertColumn(2, "Message", wxLIST_FORMAT_LEFT, 350);
 
     long index = 0;
     for (const auto &commit : history)
     {
         list->InsertItem(index, commit.id.substr(0, 8));
-        list->SetItem(index, 1, commit.message);
+        list->SetItem(index, 1, commit.timestamp);
+        list->SetItem(index, 2, commit.message);
         list->SetItemPtrData(index, reinterpret_cast<wxUIntPtr>(&commit));
         ++index;
     }

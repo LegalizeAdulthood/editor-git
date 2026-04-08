@@ -12,6 +12,7 @@ struct Commit
 {
     std::string id;
     std::string message;
+    std::string timestamp;
 };
 
 using History = std::vector<Commit>;

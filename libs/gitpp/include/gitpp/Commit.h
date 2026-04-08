@@ -5,6 +5,8 @@
 
 #include <git2.h>
 
+#include <string>
+
 namespace gitpp
 {
 
@@ -25,6 +27,7 @@ public:
     unsigned int parent_count() const;
     Oid parent_id(unsigned int n) const;
     Oid tree_id() const;
+    std::string time_str() const;
 
     git_commit *handle() const
     {

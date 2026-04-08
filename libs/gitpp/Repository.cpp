@@ -101,6 +101,7 @@ CommitHistory Repository::get_file_history(const char *path)
             CommitInfo info;
             info.id = oid.to_string();
             info.message = commit.message();
+            info.timestamp = commit.time_str();
             history.push_back(std::move(info));
         }
     }

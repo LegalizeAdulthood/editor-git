@@ -15,6 +15,7 @@ struct CommitInfo
 {
     std::string id;
     std::string message;
+    std::string timestamp;
 };
 
 using CommitHistory = std::vector<CommitInfo>;

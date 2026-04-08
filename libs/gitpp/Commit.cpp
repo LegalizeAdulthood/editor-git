@@ -2,6 +2,10 @@
 
 #include <gitpp/Repository.h>
 
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+
 namespace gitpp
 {
 
@@ -38,6 +42,21 @@ Oid Commit::parent_id(unsigned int n) const
 Oid Commit::tree_id() const
 {
     return Oid(*git_commit_tree_id(m_handle));
+}
+
+std::string Commit::time_str() const
+{
+    git_time_t time = git_commit_time(m_handle);
+    std::time_t t = static_cast<std::time_t>(time);
+    std::tm local_tm{};
+#ifdef _WIN32
+    localtime_s(&local_tm, &t);
+#else
+    localtime_r(&t, &local_tm);
+#endif
+    std::ostringstream oss;
+    oss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
 }
 
 } // namespace gitpp

@@ -60,7 +60,7 @@ version::History GitRepository::get_file_history(const char *name)
     history.reserve(gitpp_history.size());
     for (const auto &commit : gitpp_history)
     {
-        history.push_back({commit.id, commit.message});
+        history.push_back({commit.id, commit.message, commit.timestamp});
     }
     return history;
 }
