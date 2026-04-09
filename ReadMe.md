@@ -2,7 +2,8 @@
 
 # Managing Versions Programmatically with LibGit2
 
-Sample code for the video Managing Versions Programmatically with LibGit2.
+Sample code for the video
+[Managing Versions Programmatically with LibGit2](https://www.youtube.com/watch?v=Vrc95KdNHHA).
 
 # Obtaining the Source
 
@@ -27,6 +28,18 @@ cmake --workflow --preset default
 
 Places the build outputs in a sibling directory of the source code directory, e.g. up
 and outside of the source directory.
+
+# wxWidgets Dependencies for Linux
+
+This sample code uses wxWidgets to create a GUI application.  On Linux,
+you will need to install a bunch of prerequisistes on your system before
+the code will build successfully.  Execute this command in the top-level
+source directory to install the dependencies:
+
+```sh
+sed '/#/d' .github/workflows/wx-requirements.txt \
+| xargs sudo apt-get install --no-install-recommends -y
+```
 
 [Utah C++ Programmers](https://meetup.com/utah-cpp-programmers)\
 [Past Topics](https://utahcpp.wordpress.com/past-meeting-topics/)\
