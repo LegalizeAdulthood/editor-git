@@ -3,5 +3,5 @@ add_library(editor-version
     Repository.cpp
 )
 target_include_directories(editor-version PUBLIC include)
-target_link_libraries(editor-version PUBLIC gitpp)
+target_link_libraries(editor-version PRIVATE gitpp)
 target_folder(editor-version "Libraries")
